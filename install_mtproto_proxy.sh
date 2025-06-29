@@ -1,36 +1,91 @@
 #!/bin/bash
 
-# Dừng script nếu có lỗi
+# Tự động dừng nếu có lỗi
 set -e
 
-echo "🔁 Đang chuyển SOCKS5 proxy từ port 443 sang 1080..."
+echo "==============================="
+echo "🔥 Cài đặt MTProto Proxy cho Telegram trên Ubuntu"
+echo "==============================="
 
-# Tìm file cấu hình của dante (thường nằm tại /etc/danted.conf)
-CONF_FILE="/etc/danted.conf"
-BACKUP_FILE="/etc/danted.conf.bak"
-
-if [ ! -f "$CONF_FILE" ]; then
-  echo "❌ Không tìm thấy file cấu hình Dante tại $CONF_FILE"
-  exit 1
+# Hỏi port
+read -p "👉 Nhập port bạn muốn dùng cho proxy (vd: 443, 8443, 10000): " PORT
+if ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
+    echo "❌ Port không hợp lệ"
+    exit 1
 fi
 
-# Sao lưu cấu hình gốc
-cp "$CONF_FILE" "$BACKUP_FILE"
-echo "🗂 Đã sao lưu cấu hình gốc tại $BACKUP_FILE"
+# Cài đặt gói cần thiết
+echo "📦 Cài đặt gói cần thiết..."
+apt update && apt install -y git curl python3-pip python3-dev libssl-dev zlib1g-dev screen
 
-# Thay thế port trong cấu hình (giả sử có dòng như: internal: eth0 port = 443)
-sed -i 's/port = 443/port = 1080/g' "$CONF_FILE"
+# Cài đặt MTProtoProxy
+echo "🚀 Tải mã nguồn MTProto Proxy..."
+cd /opt
+git clone https://github.com/alexbers/mtprotoproxy.git
+cd mtprotoproxy
 
-# Hoặc nếu cấu hình dùng kiểu: internal: eth0 port 443
-sed -i 's/port 443/port 1080/g' "$CONF_FILE"
+echo "📦 Cài Python packages..."
+pip3 install -r requirements.txt
 
-# Khởi động lại dịch vụ Dante
-echo "♻️ Khởi động lại dịch vụ Dante..."
-systemctl restart danted
+# Tạo secret
+SECRET=$(openssl rand -hex 16)
+echo "🔑 SECRET được tạo: $SECRET"
 
-# Kiểm tra lại trạng thái
-echo "📡 Trạng thái SOCKS5 mới:"
-ss -tuln | grep 1080 || echo "⚠️ Không thấy proxy đang chạy trên cổng 1080"
+# Cấu hình
+cat <<EOF > config.py
+PORT = $PORT
+USERS = {
+    "$SECRET": "default"
+}
+MODES = {
+    "classic": True
+}
+EOF
 
+# Tạo systemd service
+echo "🛠 Tạo service để chạy ngầm..."
+cat <<EOF > /etc/systemd/system/mtproto.service
+[Unit]
+Description=MTProto Proxy Service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/mtprotoproxy
+ExecStart=/usr/bin/python3 /opt/mtprotoproxy/mtprotoproxy.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Bật service
+systemctl daemon-reexec
+systemctl daemon-reload
+systemctl enable mtproto
+systemctl start mtproto
+
+# Mở port firewall
+echo "🔓 Mở port $PORT trên firewall..."
+ufw allow $PORT/tcp || true
+iptables -I INPUT -p tcp --dport $PORT -j ACCEPT
+
+# Tối ưu hệ thống (BBR + sysctl)
+echo "⚙️ Tối ưu hệ thống..."
+cat <<EOF >> /etc/sysctl.conf
+
+# TCP Optimizations
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+net.ipv4.tcp_fastopen=3
+net.ipv4.tcp_tw_reuse=1
+EOF
+
+sysctl -p
+
+# Xuất link proxy
+IP=$(curl -s https://api.ipify.org)
 echo ""
-echo "✅ SOCKS5 proxy đã được chuyển sang cổng 1080 thành công!"
+echo "✅ MTProto Proxy đã cài thành công!"
+echo "🔗 Link: tg://proxy?server=$IP&port=$PORT&secret=dd$SECRET"
+echo ""
