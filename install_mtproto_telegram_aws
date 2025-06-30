@@ -1,3 +1,0 @@
-sudo apt update
-
-sudo curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && sudo bash MTProtoProxyInstall.sh
