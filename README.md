@@ -1,38 +1,39 @@
 
-# MTProto Proxy - Triển khai nhanh trên Ubuntu VPS
+# MTProto Proxy Installer (Optimized)
 
-## ✅ Cách cài đặt lại proxy:
+Script cài đặt MTProto Proxy chính thức cho Telegram trên VPS Ubuntu.
 
-```bash
-curl -L -o install_mtproto.sh https://raw.githubusercontent.com/Slyer307/mtproto-telegram-aws/main/MTProtoProxyOfficialInstall.sh
-chmod +x install_mtproto.sh
-sudo ./install_mtproto.sh
-```
-
-> ⚠️ Script sẽ sử dụng port mặc định 443 nếu không sửa.
-
-## ✅ Tạo link Telegram:
-
-Sau khi script chạy xong, bạn sẽ thấy secret được tạo.  
-Tạo link như sau:
-
-```
-tg://proxy?server=<your-ip>&port=443&secret=dd<your_secret>
-```
-
-## ✅ Kiểm tra dịch vụ:
+## 🚀 Cách sử dụng
 
 ```bash
-sudo systemctl status MTProxy
+curl -LO https://raw.githubusercontent.com/Slyer307/mtproto-telegram-aws/main/MTProtoProxyOfficialInstall_OPTIMIZED.sh
+chmod +x MTProtoProxyOfficialInstall_OPTIMIZED.sh
+sudo ./MTProtoProxyOfficialInstall_OPTIMIZED.sh
 ```
 
-## ✅ Mở firewall (nếu cần):
+## ✅ Tính năng đã được tối ưu:
 
-```bash
-sudo ufw allow 443/tcp
-sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+- Tự động xóa thư mục cũ `/opt/MTProxy` để tránh lỗi khi cài lại
+- Sử dụng Fake-TLS domain mặc định là `www.bing.com` (an toàn hơn)
+- Thêm kiểm tra các file cấu hình `proxy-secret` và `proxy-multi.conf`
+- Tự động tạo systemd để MTProto proxy chạy ngầm (dù SSH bị ngắt)
+- Hỗ trợ NAT, tường lửa, cập nhật tag định kỳ
+
+## 📲 Sau khi cài đặt xong
+
+Bạn sẽ thấy đường dẫn dạng:
+
+```
+tg://proxy?server=<your-ip>&port=443&secret=dd<your-secret>
 ```
 
-## 📌 Ghi chú:
-- Dịch vụ sẽ tự khởi động lại khi reboot
-- Bạn có thể chỉnh sửa lại cấu hình bằng cách chỉnh file `MTProxy.service`
+Hãy dán link này vào Telegram để kết nối.
+
+## 🧠 Ghi chú thêm
+
+- Đảm bảo mở cổng TCP 443 trong AWS Security Group hoặc firewall
+- Nếu Telegram không thể kết nối: kiểm tra lại secret, port, hoặc dùng Cloudflare tunnel thay thế
+
+---
+
+**Nguồn gốc mã nguồn:** [https://github.com/krepver/MTProxy](https://github.com/krepver/MTProxy)
