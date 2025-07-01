@@ -33,6 +33,11 @@ Hãy dán link này vào Telegram để kết nối.
 
 - Đảm bảo mở cổng TCP 443 trong AWS Security Group hoặc firewall
 - Nếu Telegram không thể kết nối: kiểm tra lại secret, port, hoặc dùng Cloudflare tunnel thay thế
+- Chạy lệnh sau đây nếu cần cài xxd
+  ```bash
+  sudo apt update
+  sudo apt install xxd -y
+  ```
 
 ---
 
