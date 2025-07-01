@@ -38,7 +38,10 @@ Hãy dán link này vào Telegram để kết nối.
   sudo apt update
   sudo apt install xxd -y
   ```
-
+- Chạy lệnh sau đây để vào phần thông tin proxy sau khi cài
+  ```bash
+  sudo ./MTProtoProxyOfficialInstall_OPTIMIZED.sh
+  ```
 ---
 
 **Nguồn gốc mã nguồn:** [https://github.com/krepver/MTProxy](https://github.com/krepver/MTProxy)
