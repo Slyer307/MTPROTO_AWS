@@ -1,7 +1,7 @@
 
 # MTProto Proxy Installer (Optimized)
 
-Script cài đặt MTProto Proxy chính thức cho Telegram trên VPS Ubuntu.
+Script cài đặt MTProto Proxy cho Telegram.
 
 ## 🚀 Cách sử dụng
 
