@@ -11,6 +11,13 @@ chmod +x MTProtoProxyOfficialInstall_OPTIMIZED.sh
 sudo ./MTProtoProxyOfficialInstall_OPTIMIZED.sh
 ```
 
+Hoặc
+
+```bash
+chmod +x install_mtproto_python.sh
+sudo ./install_mtproto_python.sh
+```
+
 ## ✅ Tính năng đã được tối ưu:
 
 - Tự động xóa thư mục cũ `/opt/MTProxy` để tránh lỗi khi cài lại
